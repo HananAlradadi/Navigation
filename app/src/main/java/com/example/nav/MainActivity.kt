@@ -1,8 +1,10 @@
 package com.example.nav
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -10,6 +12,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -20,6 +23,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import com.example.nav.ui.theme.NavTheme
 
 class MainActivity : ComponentActivity() {
@@ -40,10 +44,28 @@ class MainActivity : ComponentActivity() {
                       arguments = listOf(navArgument("userId") { type = NavType.StringType })){
                       backStackEntry -> Ui2(navController, backStackEntry.arguments?.getString("userId"))
                   }
-                  composable("ui3/{userId}",
-                      arguments = listOf(navArgument("userId") { type = NavType.StringType })){
-                          backStackEntry ->
-                      Ui3(navController, backStackEntry.arguments?.getString("userId"))
+                  composable(route = "detail",
+                      deepLinks = listOf(
+                          navDeepLink {
+                              uriPattern = "https://sample.com/{id}"
+                              action = Intent.ACTION_VIEW
+                          }
+                      ),
+                      arguments = listOf(
+                          navArgument("id"){
+                              type= NavType.IntType
+                              defaultValue = -1 
+
+                          }
+                      )
+                  ){
+                          entry ->
+                      val id = entry.arguments?.getInt("id")
+                      Box(modifier = Modifier.fillMaxWidth(),
+                          contentAlignment = Alignment.Center
+                      ){
+                          Text(text = "The id is $id")
+                      }
                   }
               }
           }
@@ -97,7 +119,7 @@ fun Ui1(navController: NavHostController, userId: String?) {
                 ) {
 
 
-                    Button(onClick = { navController.navigate("ui3/user2222") }) {
+                    Button(onClick = { navController.navigate("detail") }) {
                         Text(text = "go to ui3")
                     }
                 }
